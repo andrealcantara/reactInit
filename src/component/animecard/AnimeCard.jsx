@@ -1,6 +1,6 @@
 import React from 'react';
 import './AnimeCard.css';
-import {listTruncade, seasonFormat, time, truncated} from '../../Utils.js';
+import {listTruncade, truncated} from '../../Utils.js';
 
 
 const AnimeCard = ({ anime }) => {
@@ -17,7 +17,7 @@ const AnimeCard = ({ anime }) => {
         </div>
         <div className="flex-col text-gray-600">
           <p className="pt-4 text-2xl font-bold">
-            {anime.titulo} ({seasonFormat(anime.temporadaLancamento)})(
+            {anime.titulo} ({anime.format.temporada})(
             {anime.tipoMedia.toUpperCase()})
           </p>
           <p className="pt-4 text-sm font-bold">
@@ -27,7 +27,7 @@ const AnimeCard = ({ anime }) => {
           <hr className="hr-text" data-content="" />
           <div className="text-md flex justify-between px-4 my-2">
             <span className="font-bold">
-              {time(anime.tempoMedioDuracao)} | {listTruncade(anime.generos)}
+              {anime.format.tempo} | {listTruncade(anime.generos)}
             </span>
             <span className="font-bold"></span>
           </div>

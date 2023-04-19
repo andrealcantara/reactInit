@@ -29,7 +29,12 @@
         ],
         "max-len": [
             "error",
-            120
+            {
+                "code": 120,
+                "ignorePattern": "d=\"([\\s\\S]*?)\"",
+                "ignoreComments": true,
+                "ignoreTrailingComments": true
+            }
         ],
         "quotes": [
             "error",
