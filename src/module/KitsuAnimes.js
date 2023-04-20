@@ -1,80 +1,112 @@
-import Anime from './anime.js';
+import Anime, { sites, statusFilter} from './anime.js';
+import Joi from 'joi';
 
 const typeMedias = ['ona', 'ova', 'tv', 'movie','music','special'];
 
 const getUrl = (ops={}) => {
   const urls = ['/kitsu','anime'];
   const query = [];
-  query.push(`filter[text]='${ops.title}'`);
-  query.push('include=genres,animeProductions.producer');
-  query.push('fields[producers]=name');
-  query.push('fields[genres]=name');
-  if(Number.isNaN(Number(ops.limit))) {
-    query.push(`page[limit]=${ops.limit}`);
+  const validation = Joi.number().integer().validate(ops.title);
+  if(validation.error) {
+    query.push(encodeURI(`filter[text]=${ops.title}`));
+    query.push(encodeURI(`filter[status]=${statusFilter.filter(val=> !val.endsWith('_airing') || 
+      !val.endsWith('_aired') || 
+      val !== 'none').join(' ')}`));
+    if(Number.isNaN(Number(ops.limit))) {
+      query.push(encodeURI(`page[limit]=${ops.limit}`));
+    }
+    if(typeMedias.includes(ops.typeMedia)) {
+      query.push(encodeURI(`filter[subtype]=${ops.typeMedia}`));
+    }
+    query.push(encodeURI('sort=-startDate'));
+  } else {
+    urls.push(validation.value);
   }
-  if(typeMedias.includes(ops.typeMedia)) {
-    query.push(`filter[subtype]=${ops.typeMedia}`);
-  }
-
+  query.push(encodeURI('include=genres,animeProductions.producer'));
+  query.push(encodeURI('fields[producers]=name'));
+  query.push(encodeURI('fields[genres]=name'));
   
   return [urls.join('/'), query.join('&')].join('?');
 };
 
 const KitsuLoad = async(ops={}) => {
-  if(typeof ops?.title !== 'string' ||
-    (ops.limit != null && Number.isNaN(Number(ops.limit))) ||
-    (ops.typeMedia != null && !typeMedias.includes(ops.typeMedia.toLowerCase())) ||
-    (ops.callback != null && typeof ops.callback !== 'function')) {
+  const schema = Joi.object({
+    site: Joi.string().not(Joi.string().empty())
+      .custom((val,helpers)=>
+        sites.includes(val.toLowerCase())?val.toLowerCase() : sites[1]),
+    title: [Joi.string().not(Joi.string().empty()).required(), Joi.number().integer().required()],
+    limit: Joi.number().integer().default(5),
+    typeMedia: Joi.string().not(Joi.string().empty()).custom((value,helpers)=>
+      typeMedias.includes(value.toLowerCase()) ? value.toLowerCase() : helpers.error('any.invalid')).default('tv'),
+    callback: Joi.function()
+  });
+  const validation = schema.validate(ops,{abortEarly:false});
+  if(validation.error) {
     const response = 'verifique o parametros \n\tops:{\n' +
       '\t\ttitle: string,\n' +
       '\t\tlimit: number,\n' +
       `\t\ttypeMedia: string, \\\\ escolha de uma das opções ${typeMedias.join(',')}\n` +
       '\t\tcallback: function,\n' +
-      '\t}\n';
+      '\t}\n' +
+      `Segue error: \n\t${ validation.error.details.map(map=> map.message).join(',\n\t')}`;
+
     console.log(response);
     return;
   }
-  const req = await fetch(
-    getUrl(
-      {
-        title: ops.title,
-        limit: ops.limit || 5,
-        typeMedia: ops.typeMedia?.toLowerCase() || 'tv'
-      }
-    )
+  const urlFormater = getUrl(
+    {
+      title: validation.value.title,
+      limit: validation.value.limit,
+      typeMedia: validation.value.typeMedia
+    }
   );
+  const req = await fetch(urlFormater);
   const resp = await req.json();
   if(resp.errors){
     console.log(resp.errors);
     return;
   }
-  const genres= [];
-  let producers = [];
-  let animeProductions = [];
-  resp.included.forEach(extraContent =>{
-    if(extraContent.type === 'genres'){
-      genres.push(extraContent);
-    } else if(extraContent.type === 'producers'){
-      producers.push(extraContent);
-    } else if(extraContent.type === 'animeProductions'){
-      animeProductions.push({id:extraContent.id, producers:extraContent.relationships.producer.data.id});
+  if(resp.data) {
+    let final = resp.data;
+    const validacaoTipoDados = Joi.array().validate(final).error;
+    if(resp.included) {
+      const genres = [];
+      let producers = [];
+      let animeProductions = [];
+      resp.included.forEach(extraContent => {
+        if (extraContent.type === 'genres') {
+          genres.push(extraContent);
+        } else if (extraContent.type === 'producers') {
+          producers.push(extraContent);
+        } else if (extraContent.type === 'animeProductions') {
+          animeProductions.push({id: extraContent.id, producers: extraContent.relationships.producer.data.id});
+        }
+      });
+      const atualizarAnime = anime => {
+        anime.genresGerado = genres
+          .filter(({id}) => anime.relationships.genres.data?.map(genres => genres.id).includes(id))
+          .map(genres => genres.attributes.name) || [];
+        anime.studioGerado = producers.filter(({id}) =>
+          animeProductions.filter(animeProduction_1 =>
+            anime.relationships.animeProductions.data.map(animeProduction_2 => animeProduction_2.id)
+              .includes(animeProduction_1.id))
+            .map(animeProduction_3 => animeProduction_3.producers).includes(id))
+          .map(productionName => productionName.attributes.name) || [];
+        return anime;
+      };
+      if(validacaoTipoDados) {
+        final = atualizarAnime(final);
+      }else{
+        final = final.map(atualizarAnime);
+      }
     }
-  });
-
-  const final = resp.data.map(anime => {
-    anime.genresGerado = genres
-      .filter(({id})=> anime.relationships.genres.data?.map(genres => genres.id).includes(id))
-      .map(genres=>genres.attributes.name) || [];
-    anime.studioGerado = producers.filter(({id})=>
-      animeProductions.filter(animeP=>
-        anime.relationships.animeProductions.data.map(animeP=>animeP.id)
-          .includes(animeP.id))
-        .map(animeP=>animeP.producers).includes(id))
-      .map(prod => prod.attributes.name) || [];
-    return anime;
-  });
-  if(ops.callback != null) {
-    ops.callback(final.map(anime => Anime().factory(ops.site, anime)));
+    if (validation.value.callback != null) {
+      if(validacaoTipoDados) {
+        validation.value.callback([Anime().factory(validation.value.site, final)]);
+      } else {
+        validation.value.callback(final.map(anime => Anime().factory(validation.value.site, anime)));
+      }
+    }
   }
 };
 

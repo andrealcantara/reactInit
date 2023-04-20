@@ -1,8 +1,26 @@
-import * as utils from '../Utils.js';
+import * as utils from '../utils/Utils.js';
+
 const traducoes = {
+  config:{
+    principal: 'en-us',
+    nacional: 'pt-br'
+  },
   temporada: {
     'en-us': ['winter', 'spring', 'summer', 'fall'],
-    'pt-br': ['inverno', 'primavera', 'verão', 'outono']
+    'pt-br': ['Inverno', 'Primavera', 'Verão', 'Outono']
+  },
+  statusAnime: {
+    'en-us': ['current','currently_airing', 'finished', 'finished_airing',
+      'not_yet_aired', 'upcoming', 'none'],
+    'pt-br': ['Em Exibição', 'Em Exibição', 'Finalizado', 'Finalizado',
+      'Não Lançado', 'Em Breve', 'Sem Status']
+  },
+  run: (val, traducao) => {
+    const idx = traducao[traducoes.config.principal].indexOf(val);
+    if(idx > -1) {
+      return traducao[traducoes.config.nacional][idx];
+    }
+    return '';
   }
 };
 
@@ -11,10 +29,10 @@ const mesParaTemporada = (mes=0) =>{
   let data = Number(mes);
 
   if(Number.isNaN(data) || data < 1 || data > 12) return '';
-  if( data > 9 ) season = traducoes.temporada['en-us'][3];
-  else if( data > 6 ) season = traducoes.temporada['en-us'][2];
-  else if( data > 3 ) season = traducoes.temporada['en-us'][1];
-  else if( data > 0 ) season = traducoes.temporada['en-us'][0];
+  if( data > 9 ) season = traducoes.temporada[traducoes.config.principal][3];
+  else if( data > 6 ) season = traducoes.temporada[traducoes.config.principal][2];
+  else if( data > 3 ) season = traducoes.temporada[traducoes.config.principal][1];
+  else if( data > 0 ) season = traducoes.temporada[traducoes.config.principal][0];
   return season;
 };
 
@@ -35,7 +53,10 @@ const tempoFormatacao = {
     return response.join(' ');
   },
   kitsu:(duracao)=>{
-    return duracao + 'Min';
+    if(duracao != null) {
+      return duracao + 'Min';
+    }
+    return '';
   }
 };
 
@@ -48,19 +69,22 @@ const localDefaults = {
 };
 
 const sites = ['mal', 'kitsu'];
-const temporadaName = (name) =>{
-  const idx = traducoes.temporada['en-us'].indexOf(name);
-  if(idx > -1) {
-    return traducoes.temporada['pt-br'][idx];
-  }
-  return '';
+
+const temporadaNomeNacional = (temporada) =>{
+  return traducoes.run(temporada, traducoes.temporada);
+};
+
+const statusAnimeNomeNacional = (statusAnime) =>{
+  return traducoes.run(statusAnime, traducoes.statusAnime);
 };
 
 const Anime = () => {
-  function create(id=0,poster='',titulo='',
-    temporadaLancamento={ano:'',temporada:''},
-    titulosAlternativos={original:'',principal:''},
-    tipoMedia='',tempoMedioDuracao=0,generos=[],sinopse='',notaMedia='',studios=[]){
+  function create(id= 0,poster= '',titulo= '',
+    temporadaLancamento= {ano:'',temporada:''},
+    titulosAlternativos= {original:'',principal:''},
+    tipoMedia= '',tempoMedioDuracao= 0,generos= [],
+    sinopse= '',notaMedia= '',studios=[], status='none', site='',
+    type=''){
     return {
       id: id,
       poster: poster,
@@ -73,6 +97,9 @@ const Anime = () => {
       notaMedia: notaMedia,
       sinopse: sinopse,
       studios: studios,
+      status: status,
+      site: site,
+      type: type,
       format: {
         tempo: '',
         temporada: ''
@@ -86,38 +113,41 @@ const Anime = () => {
   }
 
 
-  function generateMyMal(anime={}){
+  function generateMyMal(anime={}, type= sites[0]){
     const poster = anime.main_picture?.larger
       || anime.main_picture?.medium
       || localDefaults.data.vazia;
 
     const temporada ={
       ano: anime.start_season?.year || localDefaults.data.naoInfomada,
-      temporada: temporadaName(anime.start_season?.season.toLowerCase() || localDefaults.data.naoInfomada)};
+      temporada: temporadaNomeNacional(anime.start_season?.season.toLowerCase() || localDefaults.data.naoInfomada)};
     const resp = create(anime.id, poster, anime.title, temporada,
       {original: anime.alternative_titles?.synonyms
           || anime.alternative_titles?.ja
         || localDefaults.data.vazia,
       principal: anime.alternative_titles?.en || localDefaults.data.vazia },
-      anime.media_type, anime.avarage_episode_duration, anime.genres.map(val => utils.capitalize(val.name)),
-      anime.synopsis, anime.mean, anime.studios.map(val => utils.capitalize(val.name, true)) );
+      anime.media_type, anime.average_episode_duration, anime.genres.map(val => utils.capitalize(val.name)),
+      anime.synopsis, anime.mean, anime.studios.map(val => utils.capitalize(val.name, true)),
+      statusAnimeNomeNacional(anime.status), `https://myanimelist.net/anime/${anime.id}#contentWrapper`, type );
     resp.format.tempo = tempoFormatacao.mal(resp.tempoMedioDuracao);
     resp.format.temporada = temporadaFormatada(resp);
     return resp;
   }
-  function generateKitsu(obj={}) {
+  function generateKitsu(obj={}, type= sites[1]) {
     const anime = obj.attributes;
     const poster = anime.posterImage?.original
       || localDefaults.data.vazia;
     const temporada ={
       ano: anime.startDate?.split('-')[0] || localDefaults.data.naoInfomada,
-      temporada: temporadaName(mesParaTemporada(anime.startDate?.split('-')[1])  || localDefaults.data.naoInfomada)};
-    const resp = create(anime.id, poster, anime.canonicalTitle, temporada,
+      temporada: temporadaNomeNacional(mesParaTemporada(anime.startDate?.split('-')[1])
+        || localDefaults.data.naoInfomada)};
+    const resp = create(obj.id, poster, anime.canonicalTitle, temporada,
       {original: anime.titles?.['ja_jp']
           ?? localDefaults.data.vazia,
       principal: anime.titles?.['en_jp'] ?? localDefaults.data.vazia },
       anime.subtype, anime.episodeLength, obj.genresGerado,
-      anime.synopsis, anime.averageRating, obj.studioGerado);
+      anime.synopsis, anime.averageRating, obj.studioGerado, statusAnimeNomeNacional(anime.status),
+      `https://kitsu.io/anime/${anime.slug}`, type);
     resp.format.tempo = tempoFormatacao.kitsu(resp.tempoMedioDuracao);
     resp.format.temporada = temporadaFormatada(resp);
     return resp;
@@ -127,10 +157,10 @@ const Anime = () => {
     let count = 0;
     if(!(sites.includes(type))) return null;
     if (type === sites[count++]) {
-      resp = generateMyMal(data);
+      resp = generateMyMal(data, type);
     }
     if(type === sites[count++]) {
-      resp = generateKitsu(data);
+      resp = generateKitsu(data, type);
     }
     return resp;
   }
@@ -139,5 +169,7 @@ const Anime = () => {
   };
 };
 
+const statusFilter = traducoes.statusAnime[traducoes.config.principal];
+const animeStatus = traducoes.statusAnime[traducoes.config.nacional];
 export default Anime;
-export {sites};
+export {sites, statusFilter, animeStatus};

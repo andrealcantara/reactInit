@@ -9,7 +9,7 @@ import GetAnimes from './module/GetAnimes.js';
 const App = () => {
   const [animes, setAnimes] = useState([]);
   useEffect(()=> {
-    GetAnimes({title:'One Piece', callback:setAnimes, site:'kitsu'}).run();
+    GetAnimes({title:1, limit:10, callback:setAnimes, site:'kitsu'}).run();
   },[]);
 
 

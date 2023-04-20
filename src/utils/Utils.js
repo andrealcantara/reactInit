@@ -1,3 +1,5 @@
+import Joi from 'joi';
+
 const constantDefault = {
   text: {
     size: 559,
@@ -9,16 +11,13 @@ const constantDefault = {
     token: ', '
   }
 };
+
+
+
+
+
 const toUpperCase = (str)=> String(str).toUpperCase();
 
-
-const time = (duration) => {
-  const min = Math.floor(duration / 60);
-  const sec = duration % 60;
-  return String(min)
-    .concat('Min')
-    .concat(sec > 0 ? ` ${sec}s` : '');
-};
 
 const capitalize = (text, readSpace=false) => {
   let response = text;
@@ -36,13 +35,20 @@ const capitalize = (text, readSpace=false) => {
   }
   return response;
 };
-const seasonFormat = (season) => {
-  let _season =
-    season.season.charAt(0).toUpperCase() + season.season.slice(1);
-  return `${_season} - ${season.year}`;
-};
-const listTruncade = (list, size = constantDefault.list.size, token = constantDefault.list.token) => {
-  let response = list?.map((val) => val.name).join(token);
+const listTruncade = (ops={}) => {
+  const schema = Joi.object({
+    list: Joi.array().required(),
+    size: Joi.number().integer().default(constantDefault.list.size),
+    token: Joi.string().not(Joi.string().empty()).default(constantDefault.list.token),
+    transform: Joi.function().default((val)=>val.name)
+  });
+  const validation = schema.validate(ops);
+  if(validation.error) return `Segue Erros: ${validation.error.details.map(val => val.message).join(', ')}`;
+  const list = validation.value.list;
+  const size = validation.value.size;
+  const token = validation.value.token;
+  const transform = validation.value.transform ?? (val => val.name); // Nao estava funcionando no codepen.io o Default do validation.
+  let response = list.map(transform).join(token);
   const cutLastGenres = (str) => {
     const vals = String(str).split(token);
     return (vals.length > 1 ? vals.slice(0, vals.length - 1) : vals).join(token);
@@ -65,4 +71,4 @@ const truncated = (
   return val;
 };
 
-export {toUpperCase, truncated, time, seasonFormat, listTruncade, capitalize};
+export {toUpperCase, truncated, listTruncade, capitalize};

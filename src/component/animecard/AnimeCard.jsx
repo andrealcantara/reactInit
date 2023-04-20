@@ -1,6 +1,6 @@
 import React from 'react';
 import './AnimeCard.css';
-import {listTruncade, truncated} from '../../Utils.js';
+import {listTruncade, truncated} from '../../utils/Utils.js';
 
 
 const AnimeCard = ({ anime }) => {
@@ -13,7 +13,12 @@ const AnimeCard = ({ anime }) => {
             alt="pic"
             className="h-72 w-56 rounded-md shadow-2xl transform -translate-y-4 border-4 border-gray-300 shadow-lg"
           />
-          <span className="text-sm ">[{anime.id}]</span>
+          <div className="text-sm pb-6"><a href={anime.site} target="_blank"
+            className="text-gray-400 rounded-md
+              px-4 py-2 m-2 transition duration-400 ease select-none
+              hover:bg-gray-900 focus:outline-none focus:shadow-outline" rel="noreferrer">{anime.status}</a>
+          {/*<p className="text-xs">[{anime.site}:{anime.id}]</p>*/}
+          </div>
         </div>
         <div className="flex-col text-gray-600">
           <p className="pt-4 text-2xl font-bold">
@@ -27,7 +32,10 @@ const AnimeCard = ({ anime }) => {
           <hr className="hr-text" data-content="" />
           <div className="text-md flex justify-between px-4 my-2">
             <span className="font-bold">
-              {anime.format.tempo} | {listTruncade(anime.generos)}
+              {anime.format.tempo} {anime.generos.length > 0 ? (
+                <>
+              | {listTruncade({list:anime.generos, transform:val=>val})}
+                </>) : ''}
             </span>
             <span className="font-bold"></span>
           </div>
@@ -40,7 +48,7 @@ const AnimeCard = ({ anime }) => {
             {anime.studios?.length > 0 ? (
               <>
                 <span className="font-bold px-2">|</span>
-                Studio: {listTruncade(anime.studios, 40)}
+                Studio: {listTruncade({list:anime.studios, transform: val=>val, size: 38})}
               </>
             ) : ''}
           </p>
@@ -62,8 +70,6 @@ const AnimeCardList = ({ animes }) => {
   const list = animes.map((anime) => (
     <AnimeCard anime={anime} key={anime.id}/>
   ));
-
-
   return (
     <>
       {list}
