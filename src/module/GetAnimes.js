@@ -6,7 +6,7 @@ import Joi from 'joi';
 const GetAnimes = (ops={}) =>  {
   const schema = Joi.object({
     site: Joi.string().not(Joi.string().empty())
-      .custom((val,helpers)=>
+      .custom((val)=>
         sites.includes(val.toLowerCase())?val.toLowerCase() : sites[1]),
     title: [Joi.string().not(Joi.string().empty()).required(), Joi.number().integer().required()],
     limit: Joi.number().integer().default(5),

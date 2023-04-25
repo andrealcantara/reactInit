@@ -22,9 +22,10 @@ const getUrl = (ops={}) => {
   } else {
     urls.push(validation.value);
   }
-  query.push(encodeURI('include=genres,animeProductions.producer'));
+  query.push(encodeURI('include=genres,categories,animeProductions.producer'));
   query.push(encodeURI('fields[producers]=name'));
   query.push(encodeURI('fields[genres]=name'));
+  query.push(encodeURI('fields[categories]=title'));
   
   return [urls.join('/'), query.join('&')].join('?');
 };
@@ -32,7 +33,7 @@ const getUrl = (ops={}) => {
 const KitsuLoad = async(ops={}) => {
   const schema = Joi.object({
     site: Joi.string().not(Joi.string().empty())
-      .custom((val,helpers)=>
+      .custom((val)=>
         sites.includes(val.toLowerCase())?val.toLowerCase() : sites[1]),
     title: [Joi.string().not(Joi.string().empty()).required(), Joi.number().integer().required()],
     limit: Joi.number().integer().default(5),
@@ -73,19 +74,32 @@ const KitsuLoad = async(ops={}) => {
       const genres = [];
       let producers = [];
       let animeProductions = [];
+      let categories = [];
       resp.included.forEach(extraContent => {
         if (extraContent.type === 'genres') {
           genres.push(extraContent);
+        } else if(extraContent.type === 'categories'){
+          categories.push(extraContent);
         } else if (extraContent.type === 'producers') {
           producers.push(extraContent);
         } else if (extraContent.type === 'animeProductions') {
           animeProductions.push({id: extraContent.id, producers: extraContent.relationships.producer.data.id});
         }
       });
+      const filterSimpleRelationship = (obj, relationships)=> {
+        return ({id}) => obj.relationships[relationships].data?.map(get => get.id).includes(id);
+      };
       const atualizarAnime = anime => {
-        anime.genresGerado = genres
-          .filter(({id}) => anime.relationships.genres.data?.map(genres => genres.id).includes(id))
-          .map(genres => genres.attributes.name) || [];
+        const generos = genres
+          .filter(filterSimpleRelationship(anime,'genres'))
+          .map(get => get.attributes.name);
+        if(generos.length === 0) {
+          generos.push(
+            ...(categories
+              .filter(filterSimpleRelationship(anime, 'categories'))
+              .map(get => get.attributes.title)));
+        }
+        anime.genresGerado =  generos.sort() || [];
         anime.studioGerado = producers.filter(({id}) =>
           animeProductions.filter(animeProduction_1 =>
             anime.relationships.animeProductions.data.map(animeProduction_2 => animeProduction_2.id)
