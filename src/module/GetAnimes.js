@@ -3,6 +3,7 @@ import kitsuAnimes from './KitsuAnimes.js';
 import {sites} from './anime.js';
 
 const GetAnimes = (ops={}) =>  {
+
   if(typeof ops?.title !== 'string' ||
     (typeof ops.site !== 'string' && !sites.includes(ops.site)) ||
     (ops.limit != null && Number.isNaN(Number(ops.limit))) ||

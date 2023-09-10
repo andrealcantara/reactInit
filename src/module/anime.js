@@ -112,7 +112,7 @@ const Anime = () => {
     const temporada ={
       ano: anime.startDate?.split('-')[0] || localDefaults.data.naoInfomada,
       temporada: temporadaName(mesParaTemporada(anime.startDate?.split('-')[1])  || localDefaults.data.naoInfomada)};
-    const resp = create(anime.id, poster, anime.canonicalTitle, temporada,
+    const resp = create(obj.id, poster, anime.canonicalTitle, temporada,
       {original: anime.titles?.['ja_jp']
           ?? localDefaults.data.vazia,
       principal: anime.titles?.['en_jp'] ?? localDefaults.data.vazia },

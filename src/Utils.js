@@ -42,7 +42,7 @@ const seasonFormat = (season) => {
   return `${_season} - ${season.year}`;
 };
 const listTruncade = (list, size = constantDefault.list.size, token = constantDefault.list.token) => {
-  let response = list?.map((val) => val.name).join(token);
+  let response = list?.map((val) => val.name || val ).join(token);
   const cutLastGenres = (str) => {
     const vals = String(str).split(token);
     return (vals.length > 1 ? vals.slice(0, vals.length - 1) : vals).join(token);
