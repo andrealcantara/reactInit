@@ -2,25 +2,46 @@ import React, {useEffect, useState} from 'react';
 import AnimeCardList from './component/animecard/AnimeCard.jsx';
 import LoadingCircle from './component/simples/LoadingCircle.jsx';
 import GetAnimes from './module/GetAnimes.js';
-
-
+import './App.css';
 
 
 const App = () => {
   const [animes, setAnimes] = useState([]);
-  useEffect(()=> {
-    GetAnimes({title:'One Piece', callback:setAnimes, site:'kitsu'}).run();
-  },[]);
+  const [title, setTitle] = useState('One Piece');
+  const [buscaConfig, setBuscaConfig] = useState({title: title, callback: setAnimes, site: 'mal'});
+  useEffect(() => {
+    GetAnimes(buscaConfig).run();
+  }, []);
+
+  function handlerChange(e) {
+    e.preventDefault();
+    setTitle(e.target.value);
+  }
+
+  function onSubmitoso(e) {
+    e.preventDefault();
+    setAnimes([]);
+    buscaConfig.title = title;
+    setBuscaConfig(buscaConfig);
+    GetAnimes(buscaConfig).run();
+  }
 
 
   return (
-
     <div className="min-h-screen grid place-items-center font-mono bg-gray-900">
-      {animes !== null && animes.length > 0 ? (
-        <AnimeCardList animes={animes} />
-      ) : (
-        <LoadingCircle />
-      )}
+      <form onSubmit={onSubmitoso}>
+        <input type="text" value={title} onChange={handlerChange}/>
+        <button type="submit"
+          className="botao"
+          onClick={onSubmitoso}>Go</button>
+      </form>
+      <div>
+        {animes !== null && animes.length > 0 ? (
+          <AnimeCardList animes={animes}/>
+        ) : (
+          <LoadingCircle/>
+        )}
+      </div>
     </div>
   );
 };

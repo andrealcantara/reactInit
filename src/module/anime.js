@@ -1,4 +1,5 @@
 import * as utils from '../Utils.js';
+
 const traducoes = {
   temporada: {
     'en-us': ['winter', 'spring', 'summer', 'fall'],
@@ -6,61 +7,61 @@ const traducoes = {
   }
 };
 
-const mesParaTemporada = (mes=0) =>{
-  let season  = '';
+const mesParaTemporada = (mes = 0) => {
+  let season = '';
   let data = Number(mes);
 
-  if(Number.isNaN(data) || data < 1 || data > 12) return '';
-  if( data > 9 ) season = traducoes.temporada['en-us'][3];
-  else if( data > 6 ) season = traducoes.temporada['en-us'][2];
-  else if( data > 3 ) season = traducoes.temporada['en-us'][1];
-  else if( data > 0 ) season = traducoes.temporada['en-us'][0];
+  if (Number.isNaN(data) || data < 1 || data > 12) return '';
+  if (data > 9) season = traducoes.temporada['en-us'][3];
+  else if (data > 6) season = traducoes.temporada['en-us'][2];
+  else if (data > 3) season = traducoes.temporada['en-us'][1];
+  else if (data > 0) season = traducoes.temporada['en-us'][0];
   return season;
 };
 
 const tempoFormatacao = {
-  mal:(duracao)=> {
+  mal: (duracao) => {
     var duration = new Date(Date.UTC(1970, 0, 1)); // Epoch
     duration.setUTCSeconds(duracao);
     let response = [];
-    if(duration.getUTCHours() > 0){
-      response.push(duration.getUTCHours()+'H');
+    if (duration.getUTCHours() > 0) {
+      response.push(duration.getUTCHours() + 'H');
     }
-    if(duration.getUTCMinutes() > 0){
-      response.push(duration.getUTCMinutes()+'Min');
+    if (duration.getUTCMinutes() > 0) {
+      response.push(duration.getUTCMinutes() + 'Min');
     }
-    if(duration.getUTCSeconds() > 0){
-      response.push(duration.getUTCSeconds()+'Sec');
+    if (duration.getUTCSeconds() > 0) {
+      response.push(duration.getUTCSeconds() + 'Sec');
     }
     return response.join(' ');
   },
-  kitsu:(duracao)=>{
+  kitsu: (duracao) => {
     return duracao + 'Min';
   }
 };
 
 
 const localDefaults = {
-  data:{
-    naoInfomada:'Não Informado',
-    vazia:''
+  data: {
+    naoInfomada: 'Não Informado',
+    vazia: ''
   }
 };
 
 const sites = ['mal', 'kitsu'];
-const temporadaName = (name) =>{
+const temporadaName = (name) => {
   const idx = traducoes.temporada['en-us'].indexOf(name);
-  if(idx > -1) {
+  if (idx > -1) {
     return traducoes.temporada['pt-br'][idx];
   }
   return '';
 };
 
 const Anime = () => {
-  function create(id=0,poster='',titulo='',
-    temporadaLancamento={ano:'',temporada:''},
-    titulosAlternativos={original:'',principal:''},
-    tipoMedia='',tempoMedioDuracao=0,generos=[],sinopse='',notaMedia='',studios=[]){
+  function create(id = 0, poster = '', titulo = '',
+    temporadaLancamento = {ano: '', temporada: ''},
+    titulosAlternativos = {original: '', principal: ''},
+    tipoMedia = '', tempoMedioDuracao = 0, generos = [], sinopse = '', notaMedia = '', studios = []) {
     return {
       id: id,
       poster: poster,
@@ -80,60 +81,69 @@ const Anime = () => {
     };
   }
 
-  function temporadaFormatada(data){
+  function temporadaFormatada(data) {
     return `${data.temporadaLancamento.temporada.charAt(0).toUpperCase() +
     data.temporadaLancamento.temporada.slice(1)} - ${data.temporadaLancamento.ano}`;
   }
 
 
-  function generateMyMal(anime={}){
+  function generateMyMal(anime = {}) {
     const poster = anime.main_picture?.larger
       || anime.main_picture?.medium
       || localDefaults.data.vazia;
-
-    const temporada ={
-      ano: anime.start_season?.year || localDefaults.data.naoInfomada,
-      temporada: temporadaName(anime.start_season?.season.toLowerCase() || localDefaults.data.naoInfomada)};
-    const resp = create(anime.id, poster, anime.title, temporada,
-      {original: anime.alternative_titles?.synonyms
-          || anime.alternative_titles?.ja
+    const titulosAlternativos = {
+      original: anime.alternative_titles?.synonyms
+        || anime.alternative_titles?.ja
         || localDefaults.data.vazia,
-      principal: anime.alternative_titles?.en || localDefaults.data.vazia },
-      anime.media_type, anime.avarage_episode_duration, anime.genres.map(val => utils.capitalize(val.name)),
-      anime.synopsis, anime.mean, anime.studios.map(val => utils.capitalize(val.name, true)) );
+      principal: anime.alternative_titles?.en || localDefaults.data.vazia
+    };
+
+    const temporada = {
+      ano: anime.start_season?.year || localDefaults.data.naoInfomada,
+      temporada: temporadaName(anime.start_season?.season.toLowerCase() || localDefaults.data.naoInfomada)
+    };
+    const resp = create(anime.id, poster, anime.title, temporada, titulosAlternativos,
+      anime.media_type, anime.average_episode_duration, anime.genres.map(val => utils.capitalize(val.name)),
+      anime.synopsis, anime.mean, anime.studios.map(val => utils.capitalize(val.name, true)));
     resp.format.tempo = tempoFormatacao.mal(resp.tempoMedioDuracao);
     resp.format.temporada = temporadaFormatada(resp);
     return resp;
   }
-  function generateKitsu(obj={}) {
+
+  function generateKitsu(obj = {}) {
     const anime = obj.attributes;
     const poster = anime.posterImage?.original
       || localDefaults.data.vazia;
-    const temporada ={
+    const temporada = {
       ano: anime.startDate?.split('-')[0] || localDefaults.data.naoInfomada,
-      temporada: temporadaName(mesParaTemporada(anime.startDate?.split('-')[1])  || localDefaults.data.naoInfomada)};
+      temporada: temporadaName(mesParaTemporada(anime.startDate?.split('-')[1]) || localDefaults.data.naoInfomada)
+    };
     const resp = create(obj.id, poster, anime.canonicalTitle, temporada,
-      {original: anime.titles?.['ja_jp']
+      {
+        original: anime.titles?.['ja_jp']
           ?? localDefaults.data.vazia,
-      principal: anime.titles?.['en_jp'] ?? localDefaults.data.vazia },
+        principal: anime.titles?.['en_jp'] ?? localDefaults.data.vazia
+      },
       anime.subtype, anime.episodeLength, obj.genresGerado,
       anime.synopsis, anime.averageRating, obj.studioGerado);
     resp.format.tempo = tempoFormatacao.kitsu(resp.tempoMedioDuracao);
     resp.format.temporada = temporadaFormatada(resp);
     return resp;
   }
-  function factory(type='mal', data={}){
+
+  function factory(type = 'mal', data = {}) {
     let resp = null;
     let count = 0;
-    if(!(sites.includes(type))) return null;
+    if (!(sites.includes(type))) return null;
     if (type === sites[count++]) {
       resp = generateMyMal(data);
     }
-    if(type === sites[count++]) {
+    if (type === sites[count++]) {
       resp = generateKitsu(data);
     }
     return resp;
   }
+
   return {
     factory
   };
