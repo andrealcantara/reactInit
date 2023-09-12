@@ -1,4 +1,4 @@
-import Anime from './anime.js';
+import Anime from './Anime.jsx';
 
 const typeMedias = ['ona', 'ova', 'tv', 'movie','music','special'];
 

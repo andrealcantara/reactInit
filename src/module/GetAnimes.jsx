@@ -1,6 +1,6 @@
-import malAnimes from './MalAnimes.js';
-import kitsuAnimes from './KitsuAnimes.js';
-import {sites} from './anime.js';
+import malAnimes from './MalAnimes.jsx';
+import kitsuAnimes from './KitsuAnimes.jsx';
+import {sites} from './Anime.jsx';
 
 const GetAnimes = (ops={}) =>  {
 

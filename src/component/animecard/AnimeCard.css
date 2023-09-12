@@ -1,6 +1,6 @@
-@import "/src/assets/css/style.css";
 @import url("https://fonts.googleapis.com/icon?family=Material+Icons");
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400&display=swap");
+@import "/src/assets/css/main.css";
 
 
 body {
@@ -30,14 +30,13 @@ body {
     content: attr(data-content);
     position: relative;
     display: inline-block;
-    color: black;
+    /*color: black;*/
     padding: 0 0.5em;
     line-height: 1.5em;
     color: #818078;
     background-color: #fcfcfa;
 }
-
-.anime {
+.card-anime {
     margin-top: 30px;
 }
 

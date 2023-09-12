@@ -5,7 +5,7 @@ import {listTruncade, truncated} from '../../Utils.js';
 
 const AnimeCard = ({ anime }) => {
   return (
-    <div className="anime bg-gray-300 rounded-md  shadow-lg">
+    <div className="card-anime bg-gray-300 rounded-md  shadow-lg">
       <div className="md:flex px-4 leading-none max-w-4xl">
         <div className="flex-none ">
           <img
