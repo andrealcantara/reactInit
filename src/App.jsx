@@ -10,11 +10,10 @@ const App = () => {
   const [animes, setAnimes] = useState([]);
   const [title, setTitle] = useState('One Piece');
   const [buscaConfig, setBuscaConfig] = useState(
-    {title: title, callback: setAnimes, site: 'kitsu', typeMedia:['tv','movie']}
-  );
+    {title: title, callback: setAnimes, site: 'kitsu', typeMedia:['tv','movie']});
   useEffect(() => {
     GetAnimes(buscaConfig).run();
-  }, []);
+  }, [buscaConfig, title]);
 
   function handlerChange(e) {
     e.preventDefault();
@@ -35,7 +34,7 @@ const App = () => {
       <form onSubmit={onSubmitoso}>
         <input type="text" value={title} onChange={handlerChange}/>
         <button type="button"
-          className="botaum"
+          className="botao"
           onClick={onSubmitoso}>Go</button>
       </form>
       <div>
