@@ -1,5 +1,7 @@
+@import "/src/assets/css/style.css";
 @import url("https://fonts.googleapis.com/icon?family=Material+Icons");
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400&display=swap");
+
 
 body {
     text-align: center;
@@ -37,4 +39,12 @@ body {
 
 .anime {
     margin-top: 30px;
+}
+
+@layer components {
+    .botao-card {
+        @apply border border-gray-400 text-gray-400 rounded-md;
+        @apply px-4 py-2 m-2 transition duration-500 select-none;
+        @apply hover:bg-gray-900 focus:outline-none;
+    }
 }

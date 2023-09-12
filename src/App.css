@@ -1,11 +1,13 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "/src/assets/css/style.css";
 
 @layer components {
     .botao {
-        @apply border bg-gray-100 border-gray-400 text-gray-400 rounded-md px-4 py-2 m-2;
-        @apply select-none transition duration-500;
-        @apply hover:bg-gray-900 focus:outline-none !important;
+        /*@apply border bg-gray-100 border-gray-400 text-gray-400 rounded-md px-4 py-2 m-2;*/
+        /*@apply select-none transition duration-500;*/
+        /*@apply hover:bg-gray-900 focus:outline-none !important;*/
+
+        @apply border border-gray-400 text-gray-400 rounded-md;
+        @apply px-4 py-2 m-2 transition duration-500 select-none;
+        @apply hover:bg-gray-900 focus:outline-none ;
     }
 }

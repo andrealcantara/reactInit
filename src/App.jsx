@@ -1,14 +1,17 @@
 import React, {useEffect, useState} from 'react';
+import './App.css';
 import AnimeCardList from './component/animecard/AnimeCard.jsx';
 import LoadingCircle from './component/simples/LoadingCircle.jsx';
 import GetAnimes from './module/GetAnimes.js';
-import './App.css';
+
 
 
 const App = () => {
   const [animes, setAnimes] = useState([]);
   const [title, setTitle] = useState('One Piece');
-  const [buscaConfig, setBuscaConfig] = useState({title: title, callback: setAnimes, site: 'mal'});
+  const [buscaConfig, setBuscaConfig] = useState(
+    {title: title, callback: setAnimes, site: 'kitsu'}
+  );
   useEffect(() => {
     GetAnimes(buscaConfig).run();
   }, []);
@@ -31,7 +34,7 @@ const App = () => {
     <div className="min-h-screen grid place-items-center font-mono bg-gray-900">
       <form onSubmit={onSubmitoso}>
         <input type="text" value={title} onChange={handlerChange}/>
-        <button type="submit"
+        <button type="button"
           className="botao"
           onClick={onSubmitoso}>Go</button>
       </form>

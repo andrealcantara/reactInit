@@ -12,23 +12,32 @@ const getUrl = (ops={}) => {
   if(Number.isNaN(Number(ops.limit))) {
     query.push(`page[limit]=${ops.limit}`);
   }
-  if(typeMedias.includes(ops.typeMedia)) {
-    query.push(`filter[subtype]=${ops.typeMedia}`);
+  if(ops.typeMedia != null && (
+    (typeof ops.typeMedia === 'string' && typeMedias.includes(ops.typeMedia.toLowerCase())) ||
+    (Array.isArray(ops.typeMedia) && ops.typeMedia.every( val => typeMedias.includes(val.toLowerCase())))
+  )) {
+    let tpMedia = [];
+    if(typeof ops.typeMedia === 'string') {
+      tpMedia.push(ops.typeMedia.toLowerCase());
+    } else {
+      ops.typeMedia.forEach(type => tpMedia.push(type.toLowerCase()));
+    }
+    tpMedia.forEach(type => query.push(`filter[subtype]=${type}`));
   }
-
-  
   return [urls.join('/'), query.join('&')].join('?');
 };
 
 const KitsuLoad = async(ops={}) => {
   if(typeof ops?.title !== 'string' ||
     (ops.limit != null && Number.isNaN(Number(ops.limit))) ||
-    (ops.typeMedia != null && !typeMedias.includes(ops.typeMedia.toLowerCase())) ||
+    (ops.typeMedia != null && (
+      (typeof ops.typeMedia === 'string' && !typeMedias.includes(ops.typeMedia.toLowerCase())) ||
+      (Array.isArray(ops.typeMedia) && ops.typeMedia.some( val => !typeMedias.includes(val.toLowerCase()))))) ||
     (ops.callback != null && typeof ops.callback !== 'function')) {
     const response = 'verifique o parametros \n\tops:{\n' +
       '\t\ttitle: string,\n' +
       '\t\tlimit: number,\n' +
-      `\t\ttypeMedia: string, \\\\ escolha de uma das opções ${typeMedias.join(',')}\n` +
+      `\t\ttypeMedia: string || array, \\\\ escolha de uma das opções ${typeMedias.join(',')}\n` +
       '\t\tcallback: function,\n' +
       '\t}\n';
     console.log(response);
@@ -39,7 +48,7 @@ const KitsuLoad = async(ops={}) => {
       {
         title: ops.title,
         limit: ops.limit || 5,
-        typeMedia: ops.typeMedia?.toLowerCase() || 'tv'
+        typeMedia: ops.typeMedia || 'tv'
       }
     )
   );
