@@ -1,4 +1,4 @@
-import Anime from './anime.js';
+import Anime from './Anime.jsx';
 
 const fields = ['main_picture', 'title', 'start_season', 'media_type', 'alternative_titles',
   'average_episode_duration', 'genres', 'synopsis', 'mean', 'studios', 'broadcast', 'end_date',

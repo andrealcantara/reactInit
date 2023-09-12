@@ -1,6 +1,6 @@
-import malAnimes from './MalAnimes.js';
-import kitsuAnimes from './KitsuAnimes.js';
-import {sites} from './anime.js';
+import MalAnimes from './MalAnimes.jsx';
+import KitsuAnimes from './KitsuAnimes.jsx';
+import {sites} from './Anime.jsx';
 
 const GetAnimes = (ops={}) =>  {
 
@@ -22,10 +22,10 @@ const GetAnimes = (ops={}) =>  {
     let count = 0;
     ops.title = ops.title;
     if(ops.site === sites[count++]) {
-      malAnimes(ops);
+      MalAnimes(ops);
     }
     if(ops.site === sites[count++]) {
-      kitsuAnimes(ops);
+      KitsuAnimes(ops);
     }
   };
   return {run};

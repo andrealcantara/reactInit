@@ -1,5 +1,7 @@
 @import url("https://fonts.googleapis.com/icon?family=Material+Icons");
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400&display=swap");
+@import "/src/assets/css/main.css";
+
 
 body {
     text-align: center;
@@ -28,13 +30,20 @@ body {
     content: attr(data-content);
     position: relative;
     display: inline-block;
-    color: black;
+    /*color: black;*/
     padding: 0 0.5em;
     line-height: 1.5em;
     color: #818078;
     background-color: #fcfcfa;
 }
-
-.anime {
+.card-anime {
     margin-top: 30px;
+}
+
+@layer components {
+    button.botao-card {
+        @apply border border-gray-400 text-gray-400 rounded-md;
+        @apply px-4 py-2 m-2 transition duration-500 select-none;
+        @apply hover:bg-gray-900 focus:outline-none;
+    }
 }
