@@ -1,12 +1,12 @@
 import React, {useState} from 'react';
 // import React, {useEffect, useState} from 'react';
-import './App.css';
-import AnimeCardList from './component/animecard/AnimeCard.jsx';
-import LoadingCircle from './component/simples/LoadingCircle.jsx';
-import GetAnimes from './module/GetAnimes.jsx';
+import './BuscaAnimes.css';
+import AnimeCardList from '../animecard/AnimeCard.jsx';
+import LoadingCircle from '../simples/LoadingCircle.jsx';
+import GetAnimes from '../../module/GetAnimes.jsx';
 
 
-const App = () => {
+const BuscaAnimes = () => {
   const buscarNo = site => 'Buscar no ' + site;
   const [animes, setAnimes] = useState([]);
   const [title, setTitle] = useState('');
@@ -34,7 +34,7 @@ const App = () => {
 
 
   return (
-    <div className="min-h-screen grid place-items-center font-mono bg-gray-900">
+    <>
       <form onSubmit={onSubmitoso} className="w-full max-w-xl flex flex-col py-5 px-8">
         <div className="flex items-center p-6 space-x-6">
           <div className="flex bg-gray-100 p-4 w-full space-x-4 rounded-lg justify-between">
@@ -61,8 +61,8 @@ const App = () => {
             <div></div>
           ))}
       </div>
-    </div>
+    </>
   );
 };
 
-export default App;
+export default BuscaAnimes;

@@ -61,7 +61,8 @@ const Anime = () => {
   function create(id = 0, poster = '', titulo = '',
     temporadaLancamento = {ano: '', temporada: ''},
     titulosAlternativos = {original: '', principal: ''},
-    tipoMedia = '', tempoMedioDuracao = 0, generos = [], sinopse = '', notaMedia = '', studios = []) {
+    tipoMedia = '', tempoMedioDuracao = 0, generos = [], sinopse = '', notaMedia = '',
+    studios = [], quantidadeEpisodios = 0) {
     return {
       id: id,
       poster: poster,
@@ -70,6 +71,7 @@ const Anime = () => {
       titulosAlternativos: titulosAlternativos,
       tipoMedia: tipoMedia,
       tempoMedioDuracao: tempoMedioDuracao,
+      qntEpisodios: quantidadeEpisodios,
       generos: generos,
       notaMedia: notaMedia,
       sinopse: sinopse,
