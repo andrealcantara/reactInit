@@ -5,13 +5,19 @@ const propTypes = {
   children: PropTypes.node,
 };
 const GeradorCPT = (props) => (
-  <div id="bodyPost">
-    <table style={{width:'100%', border:'0',  backgroundColor:'#6388C4'}} width="100%" border="0" align="center">
-      <tbody className="text-white">
-        {props.children}
-      </tbody>
-    </table>
-  </div>
+  <table style={{backgroundColor: '#6388C4'}} width="100%" border="0" align="center">
+    <tbody>
+      <tr>
+        <td style={{padding: '20px'}}>
+          <table style={{backgroundColor: '#d9e0ec'}} width="100%" border="0" align="center">
+            <tbody>
+              {props.children}
+            </tbody>
+          </table>
+        </td>
+      </tr>
+    </tbody>
+  </table>
 
 );
 

@@ -6,7 +6,7 @@ const propTypes = {
 };
 
 const Linha = (props) => (
-  <tr valign="middle">
+  <tr valign={'middle'}>
     {props.children}
   </tr>
 );

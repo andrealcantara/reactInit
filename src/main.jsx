@@ -18,10 +18,9 @@ export default function Main() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<LayoutPrincipal/>}>
-          {/*<Route element={<BuscaAnimes/>}/>*/}
-          <Route path="animes" element={<BuscaAnimes />}/>
-          <Route index path="teste" element={<TesteGerado />}/>
           <Route index element={<TesteGerado />}/>
+          <Route path="teste" element={<TesteGerado />}/>
+          <Route path="animes" element={<BuscaAnimes />}/>
           <Route path="*" element={<NaoEncontrado />}/>
         </Route>
       </Routes>

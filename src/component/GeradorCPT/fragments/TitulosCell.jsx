@@ -3,16 +3,31 @@ import PropTypes from 'prop-types';
 import {capitalize} from '/src/Utils.js';
 
 const propTypes = {
-  titulo: PropTypes.array,
+  titulos: PropTypes.array,
 };
-const Fragmento = (props) => (
+
+
+const addProporcao = (param) => {
+  const proporcao = (100/param.titulos.length).toFixed(2);
+  return {
+    titulos: param.titulos.map((val, idx) => {return {value: val, proporcao: proporcao, key:idx};}),
+  };
+};
+
+const HTMLTitulo = (props) =>(
+  <td style={{backgroundColor: '#6388C4', padding: '5px', color: '#FFF'}}
+    key={props.key}
+    align={'center'} width={props.proporcao + '%'}>{capitalize(props.titulo)}</td>
+);
+
+const Titulo = (props) => (
   <>
-    {props.titulo.slice(0, 2).filter(val => typeof val === 'string').map((item, key) => (
-      <td key={key} style={{backgroundColor: '#6388C4',padding: '5px', color: '#FFF'}}
-        align="center">{capitalize(item)}</td>
+    {props = addProporcao(props)}
+    {props.titulos.filter(val => typeof val.value === 'string').map((item, key) => (
+      <HTMLTitulo key={key} titulo={item.value} propocao={item.proporcao} />
     ))}
   </>
 );
 
-Fragmento.propTypes = propTypes;
-export default Fragmento;
+Titulo.propTypes = propTypes;
+export default Titulo;
