@@ -11,7 +11,7 @@ const Cell = (props) => (
   <td style={{backgroundColor:'#6388C4',padding:'5px', color:'#FFF'}} colSpan={2} align={'center'}><b><font
     size={5}>{props.titulo}</font></b>{props?.subtitulo ? (
     <>
-      {<br />}
+      <br />
       <font size={3}>{props.subtitulo}</font>
     </>) : ''}</td>
 );

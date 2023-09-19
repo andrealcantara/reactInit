@@ -4,7 +4,7 @@ import {BrowserRouter, Outlet, Route, Routes} from 'react-router-dom';
 import BuscaAnimes from './component/buscaAnimes/BuscaAnimes.jsx';
 import './assets/css/main.css';
 import NaoEncontrado from './component/simples/NaoEncontrado.jsx';
-import TesteGerado from './component/GeradorCPT/Main.jsx';
+import TesteGerado from './component/geradorCPT/Main.jsx';
 
 
 const LayoutPrincipal = () => (
